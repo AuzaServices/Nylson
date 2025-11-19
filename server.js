@@ -5,7 +5,7 @@ const path = require("path");
 const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 // Middleware
 app.use(cors());
@@ -13,19 +13,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Configuração do MySQL
+// Conexão com FreeSQLDatabase
 const db = mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",
-  database: process.env.DB_NAME || "cadastros_db"
+  host: process.env.DB_HOST || "sql5.freesqldatabase.com",
+  user: process.env.DB_USER || "sql5802663",
+  password: process.env.DB_PASS || "p56QUxpyQI",
+  database: process.env.DB_NAME || "sql5802663",
+  port: process.env.DB_PORT || 3306
 });
 
 db.connect((err) => {
   if (err) {
     console.error("❌ Erro ao conectar no MySQL:", err.message);
   } else {
-    console.log("✅ Conectado ao MySQL");
+    console.log("✅ Conectado ao MySQL remoto");
   }
 });
 
