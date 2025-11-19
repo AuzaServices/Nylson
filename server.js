@@ -67,21 +67,24 @@ app.post(
       const carteira = req.files["carteira"] ? "/uploads/" + req.files["carteira"][0].filename : null;
       const selfieDoc = req.files["selfieDoc"] ? "/uploads/" + req.files["selfieDoc"][0].filename : null;
 
-      const sql = `
-        INSERT INTO cadastros 
-        (nome, email, telefone, documento, carteira, selfieDoc, fotoCamera, localizacao, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-      `;
-      const values = [
-        nome,
-        email,
-        telefone,
-        documento,
-        carteira,
-        selfieDoc,
-        fotoCamera,
-        latitude && longitude ? `${latitude},${longitude}` : null
-      ];
+const sql = `
+  INSERT INTO cadastros 
+  (nome, email, telefone, documento, carteira, selfieDoc, fotoCamera, localizacao, ip, cidade_ip, estado_ip, timestamp)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+`;
+const values = [
+  nome,
+  email,
+  telefone,
+  documento,
+  carteira,
+  selfieDoc,
+  fotoCamera,
+  latitude && longitude ? `${latitude},${longitude}` : null,
+  null, // ip
+  null, // cidade_ip
+  null  // estado_ip
+];
 
       db.query(sql, values, (err) => {
         if (err) {
