@@ -25,8 +25,7 @@ async function habilitarFormulario() {
 // Chama a função assim que a página carregar
 window.addEventListener("load", habilitarFormulario);
 
-// Máscara para telefone no padrão (XX) 9XXXX-XXXX
-// Máscara para telefone no padrão (XX) 9XXXX-XXXX
+// Máscara para telefone no padrão (XX) 9XXXX-XXXX com limite de dígitos
 const telefoneInput = document.getElementById("telefone");
 if (telefoneInput) {
   telefoneInput.addEventListener("input", (e) => {
@@ -83,7 +82,13 @@ form.addEventListener("submit", async (e) => {
     }
 
     const result = await response.json();
-    alert(result.mensagem);
+
+    if (result.status === "sucesso") {
+      // Redireciona para página de confirmação
+      window.location.href = "/sucesso.html";
+    } else {
+      alert(result.mensagem);
+    }
   } catch (err) {
     console.error("Erro ao enviar cadastro:", err);
     alert("❌ Falha ao enviar cadastro.");

@@ -6,12 +6,19 @@ async function carregarCadastros() {
   tbody.innerHTML = "";
 
   cadastros.forEach((c, i) => {
+    // Remove caracteres não numéricos do telefone para montar o link
+    const telefoneNumerico = c.telefone ? c.telefone.replace(/\D/g, "") : "";
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${i + 1}</td>
       <td>${c.nome}</td>
       <td>${c.email}</td>
-      <td>${c.telefone}</td>
+      <td>
+        ${telefoneNumerico
+          ? `<a href="https://wa.me/55${telefoneNumerico}" target="_blank" style="color:green;text-decoration:none;">${c.telefone}</a>`
+          : "-"}
+      </td>
       <td>${c.cidade_ip && c.estado_ip ? `${c.cidade_ip} - ${c.estado_ip}` : "-"}</td>
       <td>${new Date(c.timestamp).toLocaleString()}</td>
       <td><a href="${c.documento}" target="_blank">Abrir</a></td>
