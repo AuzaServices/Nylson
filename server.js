@@ -140,6 +140,18 @@ app.get("/painel-dados", (req, res) => {
   });
 });
 
+app.delete("/cadastro/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "DELETE FROM cadastros WHERE id = ?";
+  db.query(sql, [id], (err) => {
+    if (err) {
+      console.error("❌ Erro ao apagar cadastro:", err);
+      return res.status(500).json({ status: "erro", mensagem: "Falha ao apagar cadastro" });
+    }
+    res.json({ status: "sucesso", mensagem: "Cadastro apagado com sucesso!" });
+  });
+});
+
 // Inicialização do servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
