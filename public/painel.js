@@ -12,7 +12,7 @@ async function carregarCadastros() {
       <td>${c.nome}</td>
       <td>${c.email}</td>
       <td>${c.telefone}</td>
-      <td>${c.localizacao}</td> <!-- mostra Cidade - Estado -->
+<td>${c.cidade_ip && c.estado_ip ? `${c.cidade_ip} - ${c.estado_ip}` : "-"}</td>
       <td>${new Date(c.timestamp).toLocaleString()}</td>
       <td><a href="${c.documento}" target="_blank">Abrir</a></td>
       <td><a href="${c.carteira}" target="_blank">Abrir</a></td>

@@ -73,6 +73,7 @@ app.get("/", (req, res) => {
 });
 
 // Rota de cadastro
+// Rota de cadastro sem coordenadas
 app.post(
   "/cadastro",
   upload.fields([
@@ -82,19 +83,23 @@ app.post(
   ]),
   async (req, res) => {
     try {
-      const { nome, email, telefone, latitude, longitude, fotoCamera } = req.body;
+      const { nome, email, telefone, fotoCamera } = req.body;
 
       const documento = req.files["documento"] ? "/uploads/" + req.files["documento"][0].filename : null;
       const carteira = req.files["carteira"] ? "/uploads/" + req.files["carteira"][0].filename : null;
       const selfieDoc = req.files["selfieDoc"] ? "/uploads/" + req.files["selfieDoc"][0].filename : null;
 
-      const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-      const { cidade, estado } = await ipParaCidadeEstado(ip);
+      // Captura IP do cliente
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+      const ipPublico = ip.replace("::ffff:", "");
+
+      // Busca cidade/estado pelo IP
+      const { cidade, estado } = await ipParaCidadeEstado(ipPublico);
 
       const sql = `
         INSERT INTO cadastros 
-        (nome, email, telefone, documento, carteira, selfieDoc, fotoCamera, localizacao, ip, cidade_ip, estado_ip, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        (nome, email, telefone, documento, carteira, selfieDoc, fotoCamera, ip, cidade_ip, estado_ip, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
       `;
       const values = [
         nome,
@@ -104,8 +109,7 @@ app.post(
         carteira,
         selfieDoc,
         fotoCamera || null,
-        latitude && longitude ? `${latitude},${longitude}` : null,
-        ip,
+        ipPublico,
         cidade,
         estado
       ];
