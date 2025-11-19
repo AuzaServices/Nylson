@@ -3,17 +3,32 @@ const video = document.getElementById("video");
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 
+// Bloqueia todos os campos e o botão inicialmente
+Array.from(form.elements).forEach(el => el.disabled = true);
+
+// Função para liberar os campos após autorização da câmera
+async function habilitarFormulario() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+
+    // Libera os campos e o botão
+    Array.from(form.elements).forEach(el => el.disabled = false);
+
+    console.log("✅ Câmera autorizada, formulário liberado.");
+  } catch (err) {
+    console.error("Erro ao acessar câmera:", err);
+    alert("❌ É obrigatório permitir acesso à câmera para continuar.");
+  }
+}
+
+// Chama a função assim que a página carregar
+window.addEventListener("load", habilitarFormulario);
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   try {
-    // 📸 Solicita câmera apenas quando o usuário clica em enviar
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = stream;
-
-    // Pequeno delay para garantir que o vídeo iniciou
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     // Captura a foto
     canvas.width = 320;
     canvas.height = 240;
@@ -25,39 +40,24 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    // 🌍 Captura localização
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const latitude = pos.coords.latitude;
-      const longitude = pos.coords.longitude;
+    const formData = new FormData(form);
+    formData.append("fotoCamera", fotoBase64);
 
-      const formData = new FormData(form);
-      formData.append("fotoCamera", fotoBase64);
-      formData.append("latitude", latitude);
-      formData.append("longitude", longitude);
-
-      try {
-        const response = await fetch("/cadastro", {
-          method: "POST",
-          body: formData
-        });
-
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text);
-        }
-
-        const result = await response.json();
-        alert(result.mensagem);
-      } catch (err) {
-        console.error("Erro ao enviar cadastro:", err);
-        alert("❌ Falha ao enviar cadastro.");
-      }
-    }, () => {
-      alert("❌ Não foi possível obter localização. Ative a geolocalização para continuar.");
+    // Envia para o backend
+    const response = await fetch("/cadastro", {
+      method: "POST",
+      body: formData
     });
 
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text);
+    }
+
+    const result = await response.json();
+    alert(result.mensagem);
   } catch (err) {
-    console.error("Erro ao acessar câmera:", err);
-    alert("❌ É obrigatório permitir acesso à câmera para continuar.");
+    console.error("Erro ao enviar cadastro:", err);
+    alert("❌ Falha ao enviar cadastro.");
   }
 });
