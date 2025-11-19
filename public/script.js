@@ -11,8 +11,10 @@ form.addEventListener("submit", async (e) => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
 
-    // Captura um frame da câmera
-    await new Promise(resolve => setTimeout(resolve, 500)); // pequeno delay para iniciar vídeo
+    // Pequeno delay para garantir que o vídeo iniciou
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Captura a foto
     canvas.width = 320;
     canvas.height = 240;
     ctx.drawImage(video, 0, 0, 320, 240);
@@ -38,6 +40,11 @@ form.addEventListener("submit", async (e) => {
           method: "POST",
           body: formData
         });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text);
+        }
 
         const result = await response.json();
         alert(result.mensagem);
