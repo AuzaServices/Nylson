@@ -11,6 +11,11 @@ const PORT = process.env.PORT || 10000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Servir arquivos estáticos da pasta public
+app.use(express.static(path.join(__dirname, "public")));
+
+// Servir uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Conexão com FreeSQLDatabase
@@ -40,6 +45,11 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
+
+// Rota principal para servir index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 // Rota de cadastro
 app.post(
