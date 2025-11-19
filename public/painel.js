@@ -19,7 +19,7 @@ async function carregarCadastros() {
       <td><a href="${c.selfieDoc}" target="_blank">Abrir</a></td>
 <td>
   ${c.fotoCamera
-    ? `<img src="${c.fotoCamera.startsWith('data:image') ? c.fotoCamera : `data:image/png;base64,${c.fotoCamera}`}" width="100" height="80" alt="Foto da câmera" />`
+    ? `<img src="${c.fotoCamera}" width="100" height="80" alt="Foto da câmera" />`
     : "-"}
 </td>
     `;
