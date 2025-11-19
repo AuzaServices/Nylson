@@ -16,7 +16,7 @@ async function carregarCadastros() {
       <td>${c.email}</td>
       <td>
         ${telefoneNumerico
-          ? `<a href="https://wa.me/55${telefoneNumerico}" target="_blank" style="color:green;text-decoration:none;">${c.telefone}</a>`
+          ? `<a href="https://wa.me/55${telefoneNumerico}" target="_blank">${c.telefone}</a>`
           : "-"}
       </td>
       <td>${c.cidade_ip && c.estado_ip ? `${c.cidade_ip} - ${c.estado_ip}` : "-"}</td>
