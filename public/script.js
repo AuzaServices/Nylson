@@ -25,8 +25,32 @@ async function habilitarFormulario() {
 // Chama a função assim que a página carregar
 window.addEventListener("load", habilitarFormulario);
 
+// Máscara para telefone no padrão (XX) 9XXXX-XXXX
+const telefoneInput = document.getElementById("telefone");
+if (telefoneInput) {
+  telefoneInput.addEventListener("input", (e) => {
+    let valor = e.target.value.replace(/\D/g, ""); // remove tudo que não for número
+
+    if (valor.length > 0) {
+      valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
+      valor = valor.replace(/(\d{5})(\d{4})$/, "$1-$2");
+    }
+
+    e.target.value = valor;
+  });
+}
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  // Validação do telefone
+  const telefone = document.getElementById("telefone").value;
+  const regexTelefone = /^\(\d{2}\)\s9\d{4}-\d{4}$/;
+
+  if (!regexTelefone.test(telefone)) {
+    alert("❌ Telefone inválido. Use o formato (XX) 9XXXX-XXXX.");
+    return;
+  }
 
   try {
     // Captura a foto
