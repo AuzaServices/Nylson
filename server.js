@@ -4,28 +4,27 @@ const mysql = require("mysql2");
 const path = require("path");
 const cors = require("cors");
 const fs = require("fs");
+const axios = require("axios");
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: "10mb" })); // aumenta limite para base64 grande
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// garante que a pasta uploads existe
+// Garante que a pasta uploads existe
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
-// Servir arquivos estáticos da pasta public
+// Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
-
-// Servir uploads
 app.use("/uploads", express.static(uploadDir));
 
-// Conexão com FreeSQLDatabase
+// Conexão com banco de dados
 const db = mysql.createConnection({
   host: process.env.DB_HOST || "sql5.freesqldatabase.com",
   user: process.env.DB_USER || "sql5802663",
@@ -42,7 +41,7 @@ db.connect((err) => {
   }
 });
 
-// Configuração do Multer (upload de arquivos)
+// Configuração do Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -53,7 +52,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Rota principal para servir index.html
+// Função para buscar cidade/estado por IP
+async function ipParaCidadeEstado(ip) {
+  const token = "83e6d56256238e"; // substitua pela sua chave do ipinfo.io
+  const url = `https://ipinfo.io/${ip}?token=${token}`;
+
+  try {
+    const response = await axios.get(url);
+    const { city, region } = response.data;
+    return { cidade: city, estado: region };
+  } catch (error) {
+    console.error("Erro ao buscar localização por IP:", error.message);
+    return { cidade: null, estado: null };
+  }
+}
+
+// Rota principal
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -66,13 +80,16 @@ app.post(
     { name: "carteira", maxCount: 1 },
     { name: "selfieDoc", maxCount: 1 }
   ]),
-  (req, res) => {
+  async (req, res) => {
     try {
       const { nome, email, telefone, latitude, longitude, fotoCamera } = req.body;
 
       const documento = req.files["documento"] ? "/uploads/" + req.files["documento"][0].filename : null;
       const carteira = req.files["carteira"] ? "/uploads/" + req.files["carteira"][0].filename : null;
       const selfieDoc = req.files["selfieDoc"] ? "/uploads/" + req.files["selfieDoc"][0].filename : null;
+
+      const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+      const { cidade, estado } = await ipParaCidadeEstado(ip);
 
       const sql = `
         INSERT INTO cadastros 
@@ -86,11 +103,11 @@ app.post(
         documento,
         carteira,
         selfieDoc,
-        fotoCamera || null, // salva base64 direto no banco
+        fotoCamera || null,
         latitude && longitude ? `${latitude},${longitude}` : null,
-        null, // ip
-        null, // cidade_ip
-        null  // estado_ip
+        ip,
+        cidade,
+        estado
       ];
 
       db.query(sql, values, (err) => {
@@ -107,7 +124,7 @@ app.post(
   }
 );
 
-// Rota para listar cadastros no painel
+// Rota para listar cadastros
 app.get("/painel-dados", (req, res) => {
   const sql = "SELECT * FROM cadastros ORDER BY timestamp DESC";
   db.query(sql, (err, results) => {
