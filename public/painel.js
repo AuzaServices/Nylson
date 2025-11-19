@@ -17,7 +17,11 @@ async function carregarCadastros() {
       <td><a href="${c.documento}" target="_blank">Abrir</a></td>
       <td><a href="${c.carteira}" target="_blank">Abrir</a></td>
       <td><a href="${c.selfieDoc}" target="_blank">Abrir</a></td>
-      <td><a href="${c.fotoCamera}" target="_blank">Abrir</a></td>
+      <td>
+  ${c.fotoCamera
+    ? `<img src="data:image/png;base64,${c.fotoCamera}" width="100" height="80" alt="Foto da câmera" />`
+    : "-"}
+</td>
     `;
     tbody.appendChild(tr);
   });
