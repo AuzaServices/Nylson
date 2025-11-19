@@ -69,8 +69,8 @@ app.post(
 
 const sql = `
   INSERT INTO cadastros 
-  (nome, email, telefone, documento, carteira, selfieDoc, fotoCamera, localizacao, ip, cidade_ip, estado_ip, timestamp)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+  (nome, email, telefone, documento, carteira, selfieDoc, localizacao, ip, cidade_ip, estado_ip, timestamp)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
 `;
 const values = [
   nome,
@@ -79,11 +79,10 @@ const values = [
   documento,
   carteira,
   selfieDoc,
-  fotoCamera,
   latitude && longitude ? `${latitude},${longitude}` : null,
-  null, // ip
-  null, // cidade_ip
-  null  // estado_ip
+  null,
+  null,
+  null
 ];
 
       db.query(sql, values, (err) => {
