@@ -26,10 +26,14 @@ async function habilitarFormulario() {
 window.addEventListener("load", habilitarFormulario);
 
 // Máscara para telefone no padrão (XX) 9XXXX-XXXX
+// Máscara para telefone no padrão (XX) 9XXXX-XXXX
 const telefoneInput = document.getElementById("telefone");
 if (telefoneInput) {
   telefoneInput.addEventListener("input", (e) => {
     let valor = e.target.value.replace(/\D/g, ""); // remove tudo que não for número
+
+    // Limita a 11 dígitos (2 DDD + 9 número)
+    valor = valor.substring(0, 11);
 
     if (valor.length > 0) {
       valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
